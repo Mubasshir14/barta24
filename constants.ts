@@ -1,16 +1,33 @@
-
 import { NewsArticle, CategoryType } from './types';
 
 export const CATEGORIES = [
   { id: CategoryType.National, bn: 'জাতীয়', en: 'National' },
   { id: CategoryType.International, bn: 'আন্তর্জাতিক', en: 'International' },
   { id: CategoryType.Politics, bn: 'রাজনীতি', en: 'Politics' },
+  { id: CategoryType.Economy, bn: 'অর্থনীতি', en: 'Economy' },
   { id: CategoryType.Sports, bn: 'খেলা', en: 'Sports' },
   { id: CategoryType.Entertainment, bn: 'বিনোদন', en: 'Entertainment' },
   { id: CategoryType.Technology, bn: 'প্রযুক্তি', en: 'Technology' },
   { id: CategoryType.Campus, bn: 'ক্যাম্পাস', en: 'Campus' },
   { id: CategoryType.Education, bn: 'শিক্ষা', en: 'Education' },
+  { id: CategoryType.Job, bn: 'চাকরি', en: 'Job' },
+  { id: CategoryType.Lifestyle, bn: 'লাইফস্টাইল', en: 'Lifestyle' },
+  { id: CategoryType.Health, bn: 'স্বাস্থ্য', en: 'Health' },
+  { id: CategoryType.Crime, bn: 'অপরাধ', en: 'Crime' },
+  { id: CategoryType.Agriculture, bn: 'কৃষি', en: 'Agriculture' },
+  { id: CategoryType.Travel, bn: 'ভ্রমণ', en: 'Travel' },
+  { id: CategoryType.Probash, bn: 'প্রবাস', en: 'Expatriates' },
+  { id: CategoryType.Science, bn: 'বিজ্ঞান', en: 'Science' },
+  { id: CategoryType.Environment, bn: 'পরিবেশ', en: 'Environment' },
+  { id: CategoryType.Law, bn: 'আইন ও বিচার', en: 'Law & Justice' },
+  { id: CategoryType.Religion, bn: 'ধর্ম', en: 'Religion' },
+  { id: CategoryType.Literature, bn: 'সাহিত্য', en: 'Literature' },
+  { id: CategoryType.Corporate, bn: 'করপোরেট', en: 'Corporate' },
+  { id: CategoryType.Multimedia, bn: 'মাল্টিমিডিয়া', en: 'Multimedia' },
+  { id: CategoryType.Auto, bn: 'মোটরযান', en: 'Automobile' },
+  { id: CategoryType.Feature, bn: 'ফিচার', en: 'Feature' },
   { id: CategoryType.Opinion, bn: 'মতামত', en: 'Opinion' },
+  { id: CategoryType.Special, bn: 'বিশেষ প্রতিবেদন', en: 'Special Reports' },
 ];
 
 export const MOCK_ARTICLES: NewsArticle[] = [
@@ -20,7 +37,6 @@ export const MOCK_ARTICLES: NewsArticle[] = [
     excerpt: { bn: 'দেশের উত্তরাঞ্চলে হিমেল হাওয়ায় বিপর্যস্ত জনজীবন। আবহাওয়া অফিস জানিয়েছে...', en: 'Public life disrupted by chilly winds in northern regions. The weather office says...' },
     content: { bn: 'বিস্তারিত সংবাদ এখানে...', en: 'Full news details here...' },
     category: CategoryType.National,
-    // Fix: Replaced 'author' with 'authorId' and 'authorName' and added 'status'
     authorId: 'admin-1',
     authorName: 'রিপোর্ট প্রতিবেদক',
     status: 'published',
@@ -37,7 +53,6 @@ export const MOCK_ARTICLES: NewsArticle[] = [
     excerpt: { bn: 'বিশ্ববিদ্যালয় প্রশাসনের নতুন সিদ্ধান্তের প্রতিবাদে সাধারণ শিক্ষার্থীরা মানববন্ধন করেছে।', en: 'General students formed a human chain protesting the new decision of the university administration.' },
     content: { bn: 'বিস্তারিত সংবাদ এখানে...', en: 'Full news details here...' },
     category: CategoryType.Campus,
-    // Fix: Replaced 'author' with 'authorId' and 'authorName' and added 'status'
     authorId: 'admin-1',
     authorName: 'ক্যাম্পাস প্রতিনিধি',
     status: 'published',
@@ -46,35 +61,5 @@ export const MOCK_ARTICLES: NewsArticle[] = [
     tags: ['শিক্ষা', 'ক্যাম্পাস'],
     views: 840,
     isBreaking: true
-  },
-  {
-    id: '3',
-    title: { bn: 'চ্যাম্পিয়ন্স লিগে রিয়াল মাদ্রিদের বড় জয়', en: 'Real Madrid secures big win in Champions League' },
-    excerpt: { bn: 'শেষ মুহূর্তের গোলে জয় নিশ্চিত করল স্প্যানিশ জায়ান্টরা।', en: 'The Spanish giants secured victory with a last-minute goal.' },
-    content: { bn: 'বিস্তারিত সংবাদ এখানে...', en: 'Full news details here...' },
-    category: CategoryType.Sports,
-    // Fix: Replaced 'author' with 'authorId' and 'authorName' and added 'status'
-    authorId: 'admin-1',
-    authorName: 'ক্রীড়া ডেস্ক',
-    status: 'published',
-    publishedAt: new Date().toISOString(),
-    image: 'https://picsum.photos/seed/sports/800/450',
-    tags: ['ফুটবল', 'রিয়াল মাদ্রিদ'],
-    views: 2100
-  },
-  {
-    id: '4',
-    title: { bn: 'বাজেট ২০২৫: শিক্ষা খাতে বরাদ্দ বাড়ানোর প্রস্তাব', en: 'Budget 2025: Proposal to increase allocation in education sector' },
-    excerpt: { bn: 'আসন্ন বাজেটে শিক্ষার মানোন্নয়নে বিশেষ গুরুত্ব দেওয়ার দাবি উঠেছে।', en: 'Demands have been made to give special importance to the development of education quality in the upcoming budget.' },
-    content: { bn: 'বিস্তারিত সংবাদ এখানে...', en: 'Full news details here...' },
-    category: CategoryType.Politics,
-    // Fix: Replaced 'author' with 'authorId' and 'authorName' and added 'status'
-    authorId: 'admin-1',
-    authorName: 'অর্থনীতি ডেস্ক',
-    status: 'published',
-    publishedAt: new Date().toISOString(),
-    image: 'https://picsum.photos/seed/budget/800/450',
-    tags: ['বাজেট', 'শিক্ষা'],
-    views: 1560
   }
 ];

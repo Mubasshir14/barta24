@@ -1,4 +1,3 @@
-
 export type Language = 'bn' | 'en';
 
 export type UserRole = 'admin' | 'editor' | 'reporter' | 'user';
@@ -37,5 +36,23 @@ export enum CategoryType {
   Technology = 'Technology',
   Opinion = 'Opinion',
   Education = 'Education',
-  Campus = 'Campus'
+  Campus = 'Campus',
+  Economy = 'Economy',
+  Lifestyle = 'Lifestyle',
+  Job = 'Job',
+  Health = 'Health',
+  Science = 'Science',
+  Environment = 'Environment',
+  Law = 'Law',
+  Religion = 'Religion',
+  Literature = 'Literature',
+  Special = 'Special',
+  Crime = 'Crime',
+  Agriculture = 'Agriculture',
+  Travel = 'Travel',
+  Auto = 'Auto',
+  Multimedia = 'Multimedia',
+  Corporate = 'Corporate',
+  Probash = 'Probash',
+  Feature = 'Feature'
 }

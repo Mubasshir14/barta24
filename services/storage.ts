@@ -1,9 +1,4 @@
 
-/**
- * 💾 STORAGE SERVICE
- * ------------------
- * Handles all localStorage operations with type safety and error handling.
- */
 
 const PREFIX = 'barta24_';
 

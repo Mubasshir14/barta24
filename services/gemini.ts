@@ -1,7 +1,6 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-// Use a more robust way to get API key in Vite
 const getApiKey = () => {
   const env = (import.meta as any).env || {};
   return env.VITE_API_KEY || (typeof process !== 'undefined' ? process.env.VITE_API_KEY || process.env.API_KEY : '');
@@ -21,7 +20,7 @@ export const translateText = async (text: string, from: 'bn' | 'en', to: 'bn' | 
     return response.text?.trim() || text;
   } catch (error) {
     console.error("Translation Error:", error);
-    return text; // Fallback to original
+    return text; 
   }
 };
 
