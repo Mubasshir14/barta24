@@ -1,24 +1,36 @@
 
 import { translateText } from './gemini';
 import { NewsArticle, User, Language, CategoryType } from '../types';
+import { dbStore } from './database';
 
+/**
+ * 🚀 PRODUCTION API SERVICE
+ * -------------------------
+ * Handles Supabase and LocalStorage Fallback
+ */
 
 const getEnv = (key: string) => {
+  // Check for Vite's import.meta.env first, then process.env
+  const metaEnv = (import.meta as any).env;
+  if (metaEnv && metaEnv[`VITE_${key}`]) return metaEnv[`VITE_${key}`];
+  if (metaEnv && metaEnv[key]) return metaEnv[key];
   return (typeof process !== 'undefined' && process.env && process.env[key]) || '';
 };
 
-const SUPABASE_URL = getEnv('SUPABASE_URL') || 'https://kpcmjnpzkbquyvkkrgtg.supabase.co'; 
+const SUPABASE_URL = getEnv('SUPABASE_URL'); 
 const SUPABASE_KEY = getEnv('SUPABASE_ANON_KEY'); 
 
-const isReady = !!SUPABASE_URL && !!SUPABASE_KEY;
+// Check if we should use Mock/Local DB
+const isMockMode = !SUPABASE_URL || !SUPABASE_KEY;
 
 export const BartaAPI = {
-
+  // --- PUBLIC NEWS ENDPOINTS ---
   
   async getLatestNews(limit = 20): Promise<NewsArticle[]> {
-    if (!isReady) {
-      console.warn("API configuration missing. Check environment variables.");
-      return [];
+    if (isMockMode) {
+      console.log("Running in Mock Mode (LocalStorage)");
+      const articles = await dbStore.queryArticles();
+      return articles.slice(0, limit);
     }
     
     try {
@@ -32,13 +44,13 @@ export const BartaAPI = {
       const data = await res.json();
       return data.map(this.mapSupabaseToNews);
     } catch (e) {
-      console.error("News Load Failed:", e);
-      return []; 
+      console.error("News Load Failed, falling back to mock:", e);
+      return await dbStore.queryArticles();
     }
   },
 
   async incrementViews(id: string): Promise<void> {
-    if (!isReady) return;
+    if (isMockMode) return;
     try {
       const res = await fetch(`${SUPABASE_URL}/rest/v1/articles?id=eq.${id}&select=views`, {
         headers: { 'apikey': SUPABASE_KEY }
@@ -60,6 +72,15 @@ export const BartaAPI = {
 
   // --- AUTH ---
   async login(email: string, pass: string): Promise<{user: User, token: string} | null> {
+    if (isMockMode) {
+      const user = await dbStore.validateAdmin(email, pass);
+      if (user) {
+        localStorage.setItem('barta_jwt', 'mock_token_123');
+        return { user, token: 'mock_token_123' };
+      }
+      throw new Error("Invalid login credentials (Mock Mode)");
+    }
+
     const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
       method: 'POST',
       headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
@@ -80,6 +101,9 @@ export const BartaAPI = {
   },
 
   async getUserFromToken(token: string): Promise<User | null> {
+    if (isMockMode && token === 'mock_token_123') {
+       return await dbStore.validateAdmin('admin@barta24.com', 'barta24@admin');
+    }
     try {
       const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
         headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}` }
@@ -97,6 +121,29 @@ export const BartaAPI = {
 
   // --- CMS ---
   async createNews(data: Partial<NewsArticle>, user: User): Promise<NewsArticle> {
+    if (isMockMode) {
+      const articles = await dbStore.queryArticles();
+      const newArt: NewsArticle = {
+        id: Math.random().toString(36).substr(2, 9),
+        title: data.title || { bn: '', en: '' },
+        excerpt: data.excerpt || { bn: '', en: '' },
+        content: data.content || { bn: '', en: '' },
+        category: data.category || CategoryType.National,
+        authorId: user.id,
+        authorName: user.name,
+        publishedAt: new Date().toISOString(),
+        image: data.image || 'https://picsum.photos/seed/news/800/450',
+        tags: [],
+        views: 0,
+        isBreaking: !!data.isBreaking,
+        isFeatured: !!data.isFeatured,
+        status: 'published'
+      };
+      articles.push(newArt);
+      await dbStore.commitArticles(articles);
+      return newArt;
+    }
+
     const token = localStorage.getItem('barta_jwt');
     const res = await fetch(`${SUPABASE_URL}/rest/v1/articles`, {
       method: 'POST',
@@ -128,6 +175,15 @@ export const BartaAPI = {
   },
 
   async updateNews(id: string, data: Partial<NewsArticle>): Promise<void> {
+    if (isMockMode) {
+      const articles = await dbStore.queryArticles();
+      const idx = articles.findIndex(a => a.id === id);
+      if (idx > -1) {
+        articles[idx] = { ...articles[idx], ...data };
+        await dbStore.commitArticles(articles);
+      }
+      return;
+    }
     const token = localStorage.getItem('barta_jwt');
     await fetch(`${SUPABASE_URL}/rest/v1/articles?id=eq.${id}`, {
       method: 'PATCH',
@@ -152,6 +208,11 @@ export const BartaAPI = {
   },
 
   async deleteNews(id: string): Promise<void> {
+    if (isMockMode) {
+      const articles = await dbStore.queryArticles();
+      await dbStore.commitArticles(articles.filter(a => a.id !== id));
+      return;
+    }
     const token = localStorage.getItem('barta_jwt');
     await fetch(`${SUPABASE_URL}/rest/v1/articles?id=eq.${id}`, {
       method: 'DELETE',
