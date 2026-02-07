@@ -20,13 +20,13 @@ const Layout: React.FC<LayoutProps> = ({ children, lang, setLang, isDark, setIsD
     // 🚀 Global Adsterra Scripts Integration
     const popunderScript = document.createElement('script');
     popunderScript.type = 'text/javascript';
-    popunderScript.src = 'https://pl28662014.effectivegatecpm.com/66/84/5d/66845d945ca1de2ac985dd8228c166e6.js';
+    popunderScript.src = 'https://pl28670495.effectivegatecpm.com/d6/bc/09/d6bc09ec53bc6b1a73af2ae8fe686afd.js';
     popunderScript.async = true;
     document.body.appendChild(popunderScript);
 
     const socialBarScript = document.createElement('script');
     socialBarScript.type = 'text/javascript';
-    socialBarScript.src = 'https://pl28662023.effectivegatecpm.com/28/3d/cb/283dcbad07387d8ac029960e15315f32.js';
+    socialBarScript.src = 'https://pl28670506.effectivegatecpm.com/02/da/16/02da166f85b905449e74f00b5bc4106c.js';
     socialBarScript.async = true;
     document.body.appendChild(socialBarScript);
 

@@ -13,11 +13,11 @@ const AdSlot: React.FC<AdSlotProps> = ({ type, className = "" }) => {
     if (!adRef.current) return;
 
     const adConfig = {
-      header: { key: 'fb3cb3971b57c0dd5c940a075d05ac82', format: 'iframe', height: 90, width: 728 },
-      footer: { key: 'fb3cb3971b57c0dd5c940a075d05ac82', format: 'iframe', height: 90, width: 728 },
-      sidebar: { key: 'a3693e3e9aa3605200991115621cab97', format: 'iframe', height: 250, width: 300 },
-      'in-article': { key: 'a3693e3e9aa3605200991115621cab97', format: 'iframe', height: 250, width: 300 },
-      mobile: { key: 'fac367d7635ad8c9a96c3c389fc09c0c', format: 'iframe', height: 60, width: 468 },
+      header: { key: 'd911bba53d820e1720543a1566509de9', format: 'iframe', height: 90, width: 728 },
+      footer: { key: 'd911bba53d820e1720543a1566509de9', format: 'iframe', height: 90, width: 728 },
+      sidebar: { key: '1b651947f3920a80a89b625266fe8ba6', format: 'iframe', height: 250, width: 300 },
+      'in-article': { key: '1b651947f3920a80a89b625266fe8ba6', format: 'iframe', height: 250, width: 300 },
+      mobile: { key: '39e8227410f683d0161038ad60111497', format: 'iframe', height: 60, width: 468 },
     };
 
     const config = adConfig[type];
