@@ -1,4 +1,10 @@
 
+/**
+ * 💾 STORAGE SERVICE
+ * ------------------
+ * Handles all localStorage operations with type safety and error handling.
+ */
+
 const PREFIX = 'barta24_';
 
 export const storage = {
@@ -14,7 +20,8 @@ export const storage = {
   get<T>(key: string, defaultValue: T): T {
     try {
       const item = localStorage.getItem(`${PREFIX}${key}`);
-      return item ? JSON.parse(item) : defaultValue;
+      if (item === null) return defaultValue;
+      return JSON.parse(item) as T;
     } catch (e) {
       console.warn('Error reading from localStorage, using default', e);
       return defaultValue;

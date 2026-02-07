@@ -2,21 +2,46 @@
 import { translateText } from './gemini';
 import { NewsArticle, User, Language, CategoryType } from '../types';
 
-const getEnv = (key: string) => {
-  const metaEnv = (import.meta as any).env;
-  if (metaEnv && metaEnv[`VITE_${key}`]) return metaEnv[`VITE_${key}`];
-  if (metaEnv && metaEnv[key]) return metaEnv[key];
-  return (typeof process !== 'undefined' && process.env && process.env[key]) || '';
+/**
+ * 🚀 PRODUCTION API SERVICE
+ * -------------------------
+ * Robust detection of environment variables for Supabase
+ */
+
+const getEnv = (key: string): string => {
+  // Access import.meta.env safely
+  const metaEnv = (import.meta as any).env || {};
+  
+  // Try exactly as provided by Vite (Uppercase VITE_)
+  if (metaEnv[`VITE_${key}`]) return metaEnv[`VITE_${key}`];
+  
+  // Try the specific typo seen in production (Vite_ instead of VITE_)
+  if (metaEnv[`Vite_${key}`]) return metaEnv[`Vite_${key}`];
+  
+  // Try direct key
+  if (metaEnv[key]) return metaEnv[key];
+  
+  // Try process.env as fallback for some build environments
+  if (typeof process !== 'undefined' && process.env) {
+    return process.env[`VITE_${key}`] || 
+           process.env[`Vite_${key}`] || 
+           process.env[key] || 
+           '';
+  }
+  
+  return '';
 };
 
 const SUPABASE_URL = getEnv('SUPABASE_URL'); 
 const SUPABASE_KEY = getEnv('SUPABASE_ANON_KEY'); 
 
 export const BartaAPI = {
+  // --- AUTHENTICATION ---
   
   async login(email: string, pass: string): Promise<{user: User, token: string} | null> {
     if (!SUPABASE_URL || !SUPABASE_KEY) {
-      throw new Error("Supabase Configuration Missing! Please set SUPABASE_URL and SUPABASE_ANON_KEY in your environment.");
+      console.error("Configuration Missing:", { url: !!SUPABASE_URL, key: !!SUPABASE_KEY });
+      throw new Error("Supabase Configuration Missing! Please check Vercel environment variables. Ensure names are VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.");
     }
 
     const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
@@ -31,8 +56,9 @@ export const BartaAPI = {
     const data = await res.json();
     
     if (!res.ok) {
-      // Handle specific Supabase error messages
-      if (data.error === 'invalid_grant') throw new Error("Invalid email or password.");
+      if (data.error === 'invalid_grant' || data.error === 'invalid_credentials') {
+        throw new Error("Invalid email or password.");
+      }
       throw new Error(data.error_description || data.message || "Authentication failed");
     }
 
@@ -113,7 +139,7 @@ export const BartaAPI = {
     } catch (e) {}
   },
 
-  // --- CMS (Requires Authentication) ---
+  // --- CMS ---
   
   async createNews(data: Partial<NewsArticle>, user: User): Promise<NewsArticle> {
     const token = localStorage.getItem('barta_jwt');
