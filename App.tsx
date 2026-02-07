@@ -101,6 +101,7 @@ const App: React.FC = () => {
             article={selectedArticle} 
             lang={lang} 
             onBack={() => { setCurrentView('home'); setSelectedArticle(null); }} 
+            onSelectRelated={handleSelectArticle}
           />
         )}
 
