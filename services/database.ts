@@ -1,52 +1,38 @@
 
-import { NewsArticle, User, CategoryType } from '../types';
+import { NewsArticle } from '../types';
+import { storage, STORAGE_KEYS } from './storage';
 
-const DB_KEYS = {
-  ARTICLES: 'barta24_db_articles',
-  USERS: 'barta24_db_users',
-  SESSION: 'barta24_db_session'
+export const dbStore = {
+
+  async getCachedArticles(): Promise<NewsArticle[]> {
+    return storage.get<NewsArticle[]>(STORAGE_KEYS.CACHE_ARTICLES, []);
+  },
+
+  async cacheArticles(articles: NewsArticle[]): Promise<void> {
+    const toCache = articles.slice(0, 50);
+    storage.set(STORAGE_KEYS.CACHE_ARTICLES, toCache);
+  },
+
+  async toggleBookmark(articleId: string): Promise<void> {
+    const bookmarks = storage.get<string[]>(STORAGE_KEYS.BOOKMARKS, []);
+    const index = bookmarks.indexOf(articleId);
+    
+    if (index > -1) {
+      bookmarks.splice(index, 1);
+    } else {
+      bookmarks.push(articleId);
+    }
+    
+    storage.set(STORAGE_KEYS.BOOKMARKS, bookmarks);
+  },
+
+  async isBookmarked(articleId: string): Promise<boolean> {
+    const bookmarks = storage.get<string[]>(STORAGE_KEYS.BOOKMARKS, []);
+    return bookmarks.includes(articleId);
+  },
+
+  async clearAll(): Promise<void> {
+    storage.remove(STORAGE_KEYS.CACHE_ARTICLES);
+    storage.remove(STORAGE_KEYS.BOOKMARKS);
+  }
 };
-
-// Fixed Production Admin
-const PRIMARY_ADMIN: User = {
-  id: 'usr_admin_001',
-  name: 'প্রধান সম্পাদক',
-  email: 'admin@barta24.com',
-  role: 'admin',
-  avatar: 'https://ui-avatars.com/api/?name=Admin&background=b91c1c&color=fff'
-};
-
-const PRIMARY_ADMIN_PASS = 'barta24@admin';
-
-class MockDatabase {
-  constructor() {
-    this.init();
-  }
-
-  private init() {
-    if (!localStorage.getItem(DB_KEYS.ARTICLES)) {
-      localStorage.setItem(DB_KEYS.ARTICLES, JSON.stringify([]));
-    }
-    if (!localStorage.getItem(DB_KEYS.USERS)) {
-      localStorage.setItem(DB_KEYS.USERS, JSON.stringify([PRIMARY_ADMIN]));
-    }
-  }
-
-  async queryArticles(): Promise<NewsArticle[]> {
-    const data = localStorage.getItem(DB_KEYS.ARTICLES);
-    return data ? JSON.parse(data) : [];
-  }
-
-  async commitArticles(articles: NewsArticle[]): Promise<void> {
-    localStorage.setItem(DB_KEYS.ARTICLES, JSON.stringify(articles));
-  }
-
-  async validateAdmin(email: string, pass: string): Promise<User | null> {
-    if (email === PRIMARY_ADMIN.email && pass === PRIMARY_ADMIN_PASS) {
-      return PRIMARY_ADMIN;
-    }
-    return null;
-  }
-}
-
-export const dbStore = new MockDatabase();
