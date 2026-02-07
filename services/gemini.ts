@@ -38,10 +38,6 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-/**
- * 🤖 GEMINI AI SERVICE
- * Optimized for professional news translation and summarization.
- */
 
 export const translateText = async (text: string, from: 'bn' | 'en', to: 'bn' | 'en'): Promise<string> => {
   if (!text || text.trim().length === 0) return "";
@@ -67,7 +63,6 @@ export const translateText = async (text: string, from: 'bn' | 'en', to: 'bn' | 
     return response.text?.trim() || text;
   } catch (error) {
     console.error("Gemini Translation Error:", error);
-    // If it's a 429 (Rate Limit), we catch it here, though return original text as fallback
     return text;
   }
 };

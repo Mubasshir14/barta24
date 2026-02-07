@@ -50,7 +50,7 @@ const NewsDetail: React.FC<NewsDetailProps> = ({ article, lang, onBack, onSelect
                 {article.title[lang]}
               </h1>
               <div className="flex flex-wrap items-center gap-6 text-sm opacity-70 border-y py-3 border-gray-100 dark:border-gray-800">
-                <span className="font-bold text-red-700">{article.authorName}</span>
+                {/* <span className="font-bold text-red-700">{article.authorName}</span> */}
                 <span className="flex items-center gap-1"><Clock size={16} /> {new Date(article.publishedAt).toLocaleString()}</span>
                 <span className="flex items-center gap-1"><Eye size={16} /> {article.views} Views</span>
                 <div className="flex gap-4 ml-auto">
