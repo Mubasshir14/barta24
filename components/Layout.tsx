@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Search, Menu, X, Bell, User, Globe, Moon, Sun, Lock } from 'lucide-react';
+import { Search, Menu, X, Moon, Sun } from 'lucide-react';
 import { Language } from '../types';
 import { CATEGORIES } from '../constants';
 
@@ -18,15 +18,12 @@ const Layout: React.FC<LayoutProps> = ({ children, lang, setLang, isDark, setIsD
 
   useEffect(() => {
     // 🚀 Global Adsterra Scripts Integration
-    
-    // 1. Popunder Ad
     const popunderScript = document.createElement('script');
     popunderScript.type = 'text/javascript';
     popunderScript.src = 'https://pl28662014.effectivegatecpm.com/66/84/5d/66845d945ca1de2ac985dd8228c166e6.js';
     popunderScript.async = true;
     document.body.appendChild(popunderScript);
 
-    // 2. Social Bar Ad
     const socialBarScript = document.createElement('script');
     socialBarScript.type = 'text/javascript';
     socialBarScript.src = 'https://pl28662023.effectivegatecpm.com/28/3d/cb/283dcbad07387d8ac029960e15315f32.js';
@@ -40,8 +37,6 @@ const Layout: React.FC<LayoutProps> = ({ children, lang, setLang, isDark, setIsD
   }, []);
 
   const t = {
-    home: { bn: 'হোম', en: 'Home' },
-    admin: { bn: 'অ্যাডমিন', en: 'Admin' },
     search: { bn: 'খুঁজুন...', en: 'Search...' },
   };
 
@@ -54,10 +49,7 @@ const Layout: React.FC<LayoutProps> = ({ children, lang, setLang, isDark, setIsD
             <span>{new Date().toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
           </div>
           <div className="flex gap-4 items-center">
-            <button onClick={() => setView('admin')} className="hover:text-gray-200 flex items-center gap-1.5 uppercase">
-              <Lock size={12} /> {t.admin[lang]}
-            </button>
-            <div className="flex gap-2 border-l border-red-500 pl-4 uppercase">
+            <div className="flex gap-2 border-red-500 uppercase">
               <button 
                 onClick={() => setLang('bn')} 
                 className={`px-1.5 transition ${lang === 'bn' ? 'underline decoration-2 underline-offset-4' : 'opacity-70'}`}
@@ -80,7 +72,7 @@ const Layout: React.FC<LayoutProps> = ({ children, lang, setLang, isDark, setIsD
             </button>
             <h1 
               onClick={() => { setView('home'); window.scrollTo(0,0); }} 
-              className="text-4xl font-black text-red-700 cursor-pointer tracking-tighter"
+              className="text-4xl font-black text-red-700 cursor-pointer tracking-tighter select-none"
             >
               বার্তা<span className="text-gray-900 dark:text-white">২৪</span>
             </h1>

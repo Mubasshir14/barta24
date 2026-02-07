@@ -8,6 +8,8 @@ import AdminDashboard from './components/AdminDashboard';
 import Login from './components/Login';
 import { BartaAPI } from './services/api';
 
+const SECRET_ADMIN_PATH = 'barta24-secure-access';
+
 const App: React.FC = () => {
   const [lang, setLang] = useState<Language>('bn');
   const [isDark, setIsDark] = useState(false);
@@ -17,6 +19,18 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    // 🕵️ Check URL Hash for Secret Admin Entrance
+    const checkHash = () => {
+      if (window.location.hash === `#${SECRET_ADMIN_PATH}`) {
+        setCurrentView('admin');
+        // Optional: clear the hash so it's not visible in the address bar
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+    };
+
+    checkHash();
+    window.addEventListener('hashchange', checkHash);
+
     // Session Recovery
     const token = localStorage.getItem('barta_jwt');
     if (token) {
@@ -29,6 +43,8 @@ const App: React.FC = () => {
     if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
       setIsDark(true);
     }
+
+    return () => window.removeEventListener('hashchange', checkHash);
   }, []);
 
   const handleSelectArticle = async (article: NewsArticle) => {
