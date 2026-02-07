@@ -1,41 +1,52 @@
 
 import React, { useEffect, useState } from 'react';
-import { Clock, Eye, ChevronRight } from 'lucide-react';
-import { NewsArticle, Language } from '../types';
+import { Clock, Eye, ChevronRight, Hash } from 'lucide-react';
+import { NewsArticle, Language, CategoryType } from '../types';
 import { BartaAPI } from '../services/api';
 import AdSlot from './AdSlot';
 import SEO from './SEO';
 
 interface HomeProps {
   lang: Language;
+  selectedCategory: CategoryType | null;
   onSelectArticle: (a: NewsArticle) => void;
 }
 
-const Home: React.FC<HomeProps> = ({ lang, onSelectArticle }) => {
+const Home: React.FC<HomeProps> = ({ lang, selectedCategory, onSelectArticle }) => {
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
-      const data = await BartaAPI.getLatestNews();
+      setLoading(true);
+      const data = await BartaAPI.getLatestNews(100);
       setArticles(data);
       setLoading(false);
     };
     load();
   }, []);
 
-  if (loading) return null;
+  if (loading) return (
+    <div className="flex justify-center py-40">
+      <div className="w-10 h-10 border-4 border-red-700 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  );
 
-  if (articles.length === 0) return (
-    <div className="text-center py-40 border-2 border-dashed border-gray-200 rounded-lg">
+  const filteredArticles = selectedCategory 
+    ? articles.filter(a => a.category === selectedCategory)
+    : articles;
+
+  if (filteredArticles.length === 0) return (
+    <div className="text-center py-40 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-lg">
+      <div className="flex justify-center mb-4 opacity-20"><Hash size={48}/></div>
       <p className="text-xl font-bold opacity-30 uppercase tracking-widest">
-        {lang === 'bn' ? 'এখনও কোনো সংবাদ প্রকাশিত হয়নি' : 'No articles published yet'}
+        {lang === 'bn' ? `${selectedCategory} বিভাগে কোনো সংবাদ পাওয়া যায়নি` : `No articles found in ${selectedCategory}`}
       </p>
     </div>
   );
 
-  const featured = articles.find(a => a.isFeatured) || articles[0];
-  const others = articles.filter(a => a.id !== featured.id);
+  const featured = filteredArticles.find(a => a.isFeatured) || filteredArticles[0];
+  const others = filteredArticles.filter(a => a.id !== featured.id);
   const breaking = articles.filter(a => a.isBreaking);
 
   return (
@@ -44,21 +55,31 @@ const Home: React.FC<HomeProps> = ({ lang, onSelectArticle }) => {
       <div className="space-y-10">
         <AdSlot type="header" />
 
-        {/* Breaking News */}
-        <div className="bg-black text-white h-10 flex items-center overflow-hidden font-bold text-sm shadow-lg">
-          <div className="bg-red-700 h-full px-6 flex items-center whitespace-nowrap z-10 shrink-0 uppercase tracking-tighter">
-            {lang === 'bn' ? 'ব্রেকিং নিউজ' : 'BREAKING NEWS'}
+        {/* Category Indicator */}
+        {selectedCategory && (
+          <div className="flex items-center gap-2 border-l-4 border-red-700 pl-4 py-2 bg-gray-50 dark:bg-gray-800/50">
+            <span className="text-[10px] font-black uppercase tracking-widest opacity-50">{lang === 'bn' ? 'বিভাগ' : 'CATEGORY'}:</span>
+            <h2 className="text-2xl font-black uppercase text-red-700">{selectedCategory}</h2>
           </div>
-          <div className="flex-1 whitespace-nowrap overflow-hidden">
-            <div className="inline-block animate-ticker pl-[100%]">
-              {(breaking.length > 0 ? breaking : articles).map(a => (
-                <span key={a.id} className="mx-10 cursor-pointer hover:text-red-500 transition" onClick={() => onSelectArticle(a)}>
-                  • {a.title[lang]}
-                </span>
-              ))}
+        )}
+
+        {/* Breaking News Ticker */}
+        {!selectedCategory && (
+          <div className="bg-black text-white h-10 flex items-center overflow-hidden font-bold text-sm shadow-lg">
+            <div className="bg-red-700 h-full px-6 flex items-center whitespace-nowrap z-10 shrink-0 uppercase tracking-tighter">
+              {lang === 'bn' ? 'ব্রেকিং নিউজ' : 'BREAKING NEWS'}
+            </div>
+            <div className="flex-1 whitespace-nowrap overflow-hidden">
+              <div className="inline-block animate-ticker pl-[100%]">
+                {(breaking.length > 0 ? breaking : articles).map(a => (
+                  <span key={a.id} className="mx-10 cursor-pointer hover:text-red-500 transition" onClick={() => onSelectArticle(a)}>
+                    • {a.title[lang]}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           <main className="lg:col-span-9 space-y-12">
@@ -81,7 +102,7 @@ const Home: React.FC<HomeProps> = ({ lang, onSelectArticle }) => {
               </div>
 
               {/* Secondary Stories */}
-              {others.slice(0, 4).map(art => (
+              {others.slice(0, 8).map(art => (
                 <div key={art.id} className="flex flex-col gap-4 group cursor-pointer border-b md:border-b-0 border-gray-100 dark:border-gray-800 pb-6" onClick={() => onSelectArticle(art)}>
                   <div className="aspect-video overflow-hidden rounded-sm shadow-sm">
                     <img src={art.image} className="w-full h-full object-cover group-hover:scale-110 transition duration-500" alt={art.title[lang]} />

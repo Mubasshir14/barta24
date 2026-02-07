@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Language, NewsArticle, User } from './types';
+import { Language, NewsArticle, User, CategoryType } from './types';
 import Layout from './components/Layout';
 import Home from './components/Home';
 import NewsDetail from './components/NewsDetail';
@@ -16,6 +16,7 @@ const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [currentView, setCurrentView] = useState<'home' | 'admin' | 'article'>('home');
   const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<CategoryType | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -23,7 +24,6 @@ const App: React.FC = () => {
     const checkHash = () => {
       if (window.location.hash === `#${SECRET_ADMIN_PATH}`) {
         setCurrentView('admin');
-        // Optional: clear the hash so it's not visible in the address bar
         window.history.replaceState(null, '', window.location.pathname);
       }
     };
@@ -31,12 +31,11 @@ const App: React.FC = () => {
     checkHash();
     window.addEventListener('hashchange', checkHash);
 
-    // Session Recovery
     const token = localStorage.getItem('barta_jwt');
     if (token) {
       BartaAPI.getUserFromToken(token).then(user => {
         if (user) setCurrentUser(user);
-        else localStorage.removeItem('barta_jwt'); // Token invalid or expired
+        else localStorage.removeItem('barta_jwt');
       });
     }
 
@@ -49,12 +48,8 @@ const App: React.FC = () => {
 
   const handleSelectArticle = async (article: NewsArticle) => {
     setIsLoading(true);
-    // 1. Increment views
     await BartaAPI.incrementViews(article.id);
-    
-    // 2. Auto-translate if needed
     const processed = await BartaAPI.translateArticle(article, lang);
-    
     setSelectedArticle(processed);
     setCurrentView('article');
     setIsLoading(false);
@@ -85,6 +80,12 @@ const App: React.FC = () => {
       setLang={handleLanguageToggle} 
       isDark={isDark} 
       setIsDark={setIsDark} 
+      selectedCategory={selectedCategory}
+      onSelectCategory={(cat) => {
+        setSelectedCategory(cat);
+        setCurrentView('home');
+        setSelectedArticle(null);
+      }}
       setView={(v) => {
         setCurrentView(v);
         if (v !== 'article') setSelectedArticle(null);
@@ -93,7 +94,7 @@ const App: React.FC = () => {
     >
       <div className={`transition-opacity duration-300 ${isLoading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
         {currentView === 'home' && (
-          <Home lang={lang} onSelectArticle={handleSelectArticle} />
+          <Home lang={lang} selectedCategory={selectedCategory} onSelectArticle={handleSelectArticle} />
         )}
         
         {currentView === 'article' && selectedArticle && (

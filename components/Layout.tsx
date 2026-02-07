@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Search, Menu, X, Moon, Sun } from 'lucide-react';
-import { Language } from '../types';
+import { Language, CategoryType } from '../types';
 import { CATEGORIES } from '../constants';
 
 interface LayoutProps {
@@ -11,9 +11,13 @@ interface LayoutProps {
   isDark: boolean;
   setIsDark: (d: boolean) => void;
   setView: (v: 'home' | 'admin' | 'article') => void;
+  onSelectCategory: (cat: CategoryType | null) => void;
+  selectedCategory: CategoryType | null;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, lang, setLang, isDark, setIsDark, setView }) => {
+const Layout: React.FC<LayoutProps> = ({ 
+  children, lang, setLang, isDark, setIsDark, setView, onSelectCategory, selectedCategory 
+}) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -38,6 +42,13 @@ const Layout: React.FC<LayoutProps> = ({ children, lang, setLang, isDark, setIsD
 
   const t = {
     search: { bn: 'খুঁজুন...', en: 'Search...' },
+  };
+
+  const handleCategoryClick = (id: CategoryType) => {
+    onSelectCategory(id);
+    setView('home');
+    setIsMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -71,7 +82,7 @@ const Layout: React.FC<LayoutProps> = ({ children, lang, setLang, isDark, setIsD
               {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
             <h1 
-              onClick={() => { setView('home'); window.scrollTo(0,0); }} 
+              onClick={() => { onSelectCategory(null); setView('home'); window.scrollTo(0,0); }} 
               className="text-4xl font-black text-red-700 cursor-pointer tracking-tighter select-none"
             >
               বার্তা<span className="text-gray-900 dark:text-white">২৪</span>
@@ -79,10 +90,14 @@ const Layout: React.FC<LayoutProps> = ({ children, lang, setLang, isDark, setIsD
           </div>
 
           <nav className="hidden lg:flex items-center gap-6 font-bold text-[13px] uppercase tracking-tight">
-            {CATEGORIES.slice(0, 8).map(cat => (
-              <a key={cat.id} href={`#${cat.id}`} className="hover:text-red-700 transition-colors">
+            {CATEGORIES.slice(0, 10).map(cat => (
+              <button 
+                key={cat.id} 
+                onClick={() => handleCategoryClick(cat.id)}
+                className={`hover:text-red-700 transition-colors ${selectedCategory === cat.id ? 'text-red-700 underline underline-offset-8' : ''}`}
+              >
                 {cat[lang]}
-              </a>
+              </button>
             ))}
           </nav>
 
@@ -104,16 +119,20 @@ const Layout: React.FC<LayoutProps> = ({ children, lang, setLang, isDark, setIsD
 
       {/* Mobile Nav Drawer */}
       {isMenuOpen && (
-        <div className={`fixed inset-0 z-50 lg:hidden ${isDark ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
-          <div className="p-4 border-b flex justify-between items-center bg-red-700 text-white">
+        <div className={`fixed inset-0 z-50 lg:hidden ${isDark ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'} overflow-y-auto`}>
+          <div className="p-4 border-b flex justify-between items-center bg-red-700 text-white sticky top-0">
             <span className="font-black text-xl">মেনু</span>
             <button onClick={() => setIsMenuOpen(false)}><X size={28} /></button>
           </div>
-          <div className="p-6 grid grid-cols-2 gap-y-6 text-lg font-bold">
+          <div className="p-6 grid grid-cols-2 gap-x-4 gap-y-6 text-lg font-bold">
             {CATEGORIES.map(cat => (
-              <a key={cat.id} href={`#${cat.id}`} onClick={() => setIsMenuOpen(false)} className="hover:text-red-700 border-b border-gray-100 pb-2">
+              <button 
+                key={cat.id} 
+                onClick={() => handleCategoryClick(cat.id)}
+                className={`text-left border-b border-gray-100 dark:border-gray-800 pb-2 transition ${selectedCategory === cat.id ? 'text-red-700' : 'hover:text-red-700'}`}
+              >
                 {cat[lang]}
-              </a>
+              </button>
             ))}
           </div>
         </div>
@@ -128,7 +147,7 @@ const Layout: React.FC<LayoutProps> = ({ children, lang, setLang, isDark, setIsD
       <footer className={`${isDark ? 'bg-gray-950 border-gray-800' : 'bg-gray-100 border-gray-200'} border-t mt-12 py-16`}>
         <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-12">
           <div className="md:col-span-1">
-            <h2 className="text-3xl font-black text-red-700 mb-6">বার্তা২৪</h2>
+            <h2 className="text-3xl font-black text-red-700 mb-6 cursor-pointer" onClick={() => { onSelectCategory(null); setView('home'); window.scrollTo(0,0); }}>বার্তা২৪</h2>
             <p className="text-[13px] opacity-70 leading-relaxed max-w-xs">
               {lang === 'bn' 
                 ? 'সত্যের সন্ধানে নির্ভীক পদযাত্রা। আধুনিক সংবাদ মাধ্যম হিসেবে আমরা সর্বদা নিরপেক্ষ তথ্য পৌঁছে দিই আপনার হাতের মুঠোয়।' 
@@ -138,7 +157,7 @@ const Layout: React.FC<LayoutProps> = ({ children, lang, setLang, isDark, setIsD
           <div>
             <h3 className="font-bold text-sm uppercase tracking-widest mb-6 border-b-2 border-red-700 inline-block">বিভাগসমূহ</h3>
             <ul className="grid grid-cols-1 gap-2.5 text-[13px] font-bold">
-              {CATEGORIES.slice(0, 6).map(c => <li key={c.id} className="hover:text-red-700 cursor-pointer">{c[lang]}</li>)}
+              {CATEGORIES.slice(0, 8).map(c => <li key={c.id} onClick={() => handleCategoryClick(c.id)} className="hover:text-red-700 cursor-pointer">{c[lang]}</li>)}
             </ul>
           </div>
           <div>
