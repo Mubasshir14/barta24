@@ -230,6 +230,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout, lang })
   const [isEditing, setIsEditing] = useState(false);
   const [currentEdit, setCurrentEdit] = useState<Partial<NewsArticle>>({});
   const [isTranslating, setIsTranslating] = useState(false);
+  const [statusText, setStatusText] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { loadData(); }, []);
@@ -255,22 +256,33 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout, lang })
     }
 
     setIsTranslating(true);
+    setStatusText('শিরোনাম অনুবাদ হচ্ছে...');
     try {
       // 🔄 Sequential translation to avoid rate limits
       const enTitle = await translateText(currentEdit.title.bn, 'bn', 'en');
+      
+      setStatusText('সারসংক্ষেপ তৈরি হচ্ছে...');
       const enExcerpt = await translateText(currentEdit.excerpt?.bn || '', 'bn', 'en');
+      
+      setStatusText('মূল খবর অনুবাদ হচ্ছে...');
       const enContent = await translateText(currentEdit.content.bn, 'bn', 'en');
 
-      setCurrentEdit(prev => ({
-        ...prev,
-        title: { ...prev.title, en: enTitle } as any,
-        excerpt: { ...prev.excerpt, en: enExcerpt } as any,
-        content: { ...prev.content, en: enContent } as any
-      }));
+      // Update state with new values
+      setCurrentEdit(prev => {
+        const updated = {
+          ...prev,
+          title: { ...(prev.title || {}), bn: prev.title?.bn || '', en: enTitle } as Record<Language, string>,
+          excerpt: { ...(prev.excerpt || {}), bn: prev.excerpt?.bn || '', en: enExcerpt } as Record<Language, string>,
+          content: { ...(prev.content || {}), bn: prev.content?.bn || '', en: enContent } as Record<Language, string>
+        };
+        return updated;
+      });
       
-      alert('অনুবাদ সফল হয়েছে!');
+      setStatusText('অনুবাদ সম্পন্ন হয়েছে!');
+      setTimeout(() => setStatusText(null), 3000);
     } catch (error) {
       console.error("AI Translation failed", error);
+      setStatusText('অনুবাদ ব্যর্থ হয়েছে!');
       alert('অনুবাদে সমস্যা হয়েছে। দয়া করে কিছুক্ষণ পর আবার চেষ্টা করুন।');
     } finally {
       setIsTranslating(false);
@@ -353,16 +365,21 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout, lang })
             </div>
 
             <div className="space-y-8">
-              <div className="flex justify-center">
+              <div className="flex flex-col items-center gap-2">
                 <button 
                   type="button" 
                   disabled={isTranslating} 
                   onClick={handleAutoTranslate} 
-                  className="bg-black text-white px-6 py-3 font-black uppercase text-[10px] tracking-widest flex items-center gap-3 hover:bg-red-700 disabled:opacity-50 transition-all active:scale-95"
+                  className="bg-black text-white px-8 py-4 font-black uppercase text-[12px] tracking-widest flex items-center gap-3 hover:bg-red-700 disabled:opacity-50 transition-all active:scale-95 shadow-md"
                 >
-                  {isTranslating ? <Loader2 size={16} className="animate-spin"/> : <Sparkles size={16}/>} 
-                  {isTranslating ? 'Translating...' : 'AI Translate (BN to EN)'}
+                  {isTranslating ? <Loader2 size={18} className="animate-spin"/> : <Sparkles size={18}/>} 
+                  {isTranslating ? 'অপেক্ষা করুন...' : 'AI Translate (BN to EN)'}
                 </button>
+                {statusText && (
+                  <span className={`text-[10px] font-black uppercase tracking-widest ${statusText.includes('ব্যর্থ') ? 'text-red-500' : 'text-blue-500'}`}>
+                    {statusText}
+                  </span>
+                )}
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
