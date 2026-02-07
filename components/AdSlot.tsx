@@ -12,6 +12,7 @@ const AdSlot: React.FC<AdSlotProps> = ({ type, className = "" }) => {
   useEffect(() => {
     if (!adRef.current) return;
 
+    // Adsterra Configuration Mapping with updated keys
     const adConfig = {
       header: { key: 'd911bba53d820e1720543a1566509de9', format: 'iframe', height: 90, width: 728 },
       footer: { key: 'd911bba53d820e1720543a1566509de9', format: 'iframe', height: 90, width: 728 },
@@ -22,29 +23,23 @@ const AdSlot: React.FC<AdSlotProps> = ({ type, className = "" }) => {
 
     const config = adConfig[type];
 
+    // Clear previous ad
     adRef.current.innerHTML = '';
     
-    // Create the script element to hold atOptions
-    const optionsScript = document.createElement('script');
-    optionsScript.type = 'text/javascript';
-    optionsScript.innerHTML = `
-      atOptions = {
-        'key' : '${config.key}',
-        'format' : '${config.format}',
-        'height' : ${config.height},
-        'width' : ${config.width},
-        'params' : {}
-      };
-    `;
+    // Crucial: Set global atOptions before loading invoke.js
+    (window as any).atOptions = {
+      'key' : config.key,
+      'format' : config.format,
+      'height' : config.height,
+      'width' : config.width,
+      'params' : {}
+    };
     
-    // Create the invoke script element
     const invokeScript = document.createElement('script');
     invokeScript.type = 'text/javascript';
     invokeScript.src = `https://www.highperformanceformat.com/${config.key}/invoke.js`;
     invokeScript.async = true;
 
-    // Append to container
-    adRef.current.appendChild(optionsScript);
     adRef.current.appendChild(invokeScript);
 
     return () => {
