@@ -143,7 +143,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout, lang })
             <div className="space-y-8">
               <div className="flex justify-center">
                 <button type="button" disabled={isTranslating} onClick={handleAutoTranslate} className="bg-black text-white px-6 py-3 font-black uppercase text-[10px] tracking-widest flex items-center gap-3 hover:bg-red-700 disabled:opacity-50">
-                  {isTranslating ? <Loader2 size={16} className="animate-spin"/> : <Sparkles size={16}/>} AI Translate (BN -> EN)
+                  {isTranslating ? <Loader2 size={16} className="animate-spin"/> : <Sparkles size={16}/>} AI Translate (BN to EN)
                 </button>
               </div>
 
