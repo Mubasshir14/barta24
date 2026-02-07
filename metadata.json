@@ -1,0 +1,10 @@
+
+{
+  "name": "Barta24 - Professional News Portal",
+  "description": "Production-ready Bengali newspaper with Gemini AI translation, robust CMS, and Adstra ad management.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
